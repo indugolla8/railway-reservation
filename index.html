@@ -1,0 +1,703 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RailGo - Railway Reservation System</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f6fb;
+    color: #172b4d;
+}
+
+header {
+    background: #10345b;
+    color: white;
+    padding: 18px 6%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+header h2 { margin: 0; }
+
+nav button {
+    margin: 3px;
+    background: white;
+    color: #10345b;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover { opacity: 0.85; }
+
+.primary {
+    background: #087f8c;
+    color: white;
+}
+
+.danger {
+    background: #c0392b;
+    color: white;
+}
+
+.hero {
+    background: linear-gradient(120deg, #10345b, #168aad);
+    color: white;
+    padding: 48px 7%;
+}
+
+.hero h1 { font-size: 38px; }
+
+.hero p {
+    line-height: 1.7;
+    max-width: 600px;
+}
+
+main {
+    max-width: 1150px;
+    margin: 25px auto;
+    padding: 0 18px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    margin-bottom: 22px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px #0000000c;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+input, select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #ccd6e0;
+    border-radius: 7px;
+    margin-bottom: 12px;
+    background: white;
+}
+
+.train {
+    border: 1px solid #dbe4ee;
+    border-radius: 10px;
+    padding: 17px;
+    margin: 12px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.train h3 { margin-top: 0; }
+
+.muted {
+    color: #667085;
+    font-size: 13px;
+}
+
+.price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #087f8c;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+th, td {
+    border-bottom: 1px solid #e3e8ef;
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background: #eaf2f8;
+}
+
+.table-wrap { overflow-x: auto; }
+
+.message {
+    padding: 12px;
+    background: #e1f5e9;
+    color: #17663a;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.hidden { display: none; }
+
+footer {
+    text-align: center;
+    padding: 22px;
+    color: #667085;
+}
+
+@media (max-width: 600px) {
+    .hero h1 { font-size: 29px; }
+    header { align-items: flex-start; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>🚆 RailGo</h2>
+    <nav>
+        <button onclick="showSection('home')">Home</button>
+        <button onclick="showSection('trains')">Trains</button>
+        <button onclick="showSection('bookings')">My Bookings</button>
+        <button onclick="showSection('admin')">Admin</button>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Your Journey Starts Here</h1>
+    <p>Search trains, calculate ticket fares, book your journey and manage reservations using our Railway Reservation System.</p>
+    <button class="primary" onclick="showSection('trains')">
+        Explore Trains →
+    </button>
+</section>
+
+<main>
+
+<div id="message"></div>
+
+<!-- HOME -->
+<section id="home" class="card">
+    <h2>Welcome to RailGo</h2>
+    <p>Our Railway Reservation System makes it easy to explore trains and manage sample ticket bookings.</p>
+
+    <div class="form-grid">
+        <div>
+            <h3 id="trainCount">0</h3>
+            <p class="muted">Available trains</p>
+        </div>
+        <div>
+            <h3 id="bookingCount">0</h3>
+            <p class="muted">Confirmed bookings</p>
+        </div>
+        <div>
+            <h3 id="passengerCount">0</h3>
+            <p class="muted">Passengers booked</p>
+        </div>
+        <div>
+            <h3 id="revenue">₹0</h3>
+            <p class="muted">Demo booking value</p>
+        </div>
+    </div>
+</section>
+
+<!-- TRAIN SEARCH -->
+<section id="trains" class="card hidden">
+    <h2>Find Your Train</h2>
+
+    <div class="form-grid">
+        <div>
+            <label>From</label>
+            <select id="source">
+                <option>Ongole</option>
+                <option>Vijayawada</option>
+                <option>Guntur</option>
+                <option>Chennai</option>
+                <option>Hyderabad</option>
+                <option>Bengaluru</option>
+                <option>Visakhapatnam</option>
+            </select>
+        </div>
+
+        <div>
+            <label>To</label>
+            <select id="destination">
+                <option>Vijayawada</option>
+                <option>Ongole</option>
+                <option>Guntur</option>
+                <option>Chennai</option>
+                <option>Hyderabad</option>
+                <option>Bengaluru</option>
+                <option>Visakhapatnam</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Journey Date</label>
+            <input type="date" id="journeyDate">
+        </div>
+    </div>
+
+    <button class="primary" onclick="searchTrains()">Search Trains</button>
+
+    <div id="trainResults"></div>
+</section>
+
+<!-- BOOKINGS -->
+<section id="bookings" class="card hidden">
+    <h2>My Bookings</h2>
+    <div id="bookingResults"></div>
+</section>
+
+<!-- ADMIN -->
+<section id="admin" class="card hidden">
+    <h2>Admin - Train Management</h2>
+    <p class="muted">This demonstration admin section is not password-protected.</p>
+
+    <h3>Add New Train</h3>
+
+    <form id="trainForm">
+        <div class="form-grid">
+            <div>
+                <label>Train Number</label>
+                <input id="trainNumber" required placeholder="e.g. 12750">
+            </div>
+
+            <div>
+                <label>Train Name</label>
+                <input id="trainName" required placeholder="City Express">
+            </div>
+
+            <div>
+                <label>Source</label>
+                <input id="trainSource" required placeholder="Departure city">
+            </div>
+
+            <div>
+                <label>Destination</label>
+                <input id="trainDestination" required placeholder="Arrival city">
+            </div>
+
+            <div>
+                <label>Departure Time</label>
+                <input id="departure" type="time" required>
+            </div>
+
+            <div>
+                <label>Arrival Time</label>
+                <input id="arrival" type="time" required>
+            </div>
+
+            <div>
+                <label>Fare per Seat (₹)</label>
+                <input id="trainFare" type="number" min="1" required>
+            </div>
+
+            <div>
+                <label>Available Seats</label>
+                <input id="trainSeats" type="number" min="1" required>
+            </div>
+        </div>
+
+        <button class="primary" type="submit">Add Train</button>
+    </form>
+
+    <h3>Passenger List</h3>
+    <div id="adminBookings"></div>
+</section>
+
+<!-- BOOK TICKET MODAL -->
+<section id="bookingFormSection" class="card hidden">
+    <h2>Passenger Registration & Ticket Booking</h2>
+    <p id="selectedTrain"></p>
+
+    <form id="passengerForm">
+        <label>Passenger Full Name</label>
+        <input id="passengerName" required placeholder="Enter full name">
+
+        <label>Age</label>
+        <input id="passengerAge" type="number" min="1" max="120" required>
+
+        <label>Gender</label>
+        <select id="gender" required>
+            <option value="">Select Gender</option>
+            <option>Female</option>
+            <option>Male</option>
+            <option>Other</option>
+        </select>
+
+        <label>Number of Seats</label>
+        <select id="seatCount">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+
+        <h3 id="farePreview">Total Fare: ₹0</h3>
+
+        <button class="primary" type="submit">Confirm Booking</button>
+        <button type="button" onclick="showSection('trains')">Go Back</button>
+    </form>
+</section>
+
+</main>
+
+<footer>
+    RailGo Railway Reservation System · College Project Demo
+</footer>
+
+<script>
+let trains = [
+    {
+        id: 1,
+        number: "12718",
+        name: "Coastal Express",
+        source: "Vijayawada",
+        destination: "Chennai",
+        departure: "06:15",
+        arrival: "13:40",
+        fare: 520,
+        seats: 64
+    },
+    {
+        id: 2,
+        number: "17225",
+        name: "Amaravati Intercity",
+        source: "Ongole",
+        destination: "Vijayawada",
+        departure: "07:30",
+        arrival: "10:05",
+        fare: 180,
+        seats: 42
+    },
+    {
+        id: 3,
+        number: "12723",
+        name: "Deccan Superfast",
+        source: "Vijayawada",
+        destination: "Hyderabad",
+        departure: "08:45",
+        arrival: "15:10",
+        fare: 610,
+        seats: 38
+    },
+    {
+        id: 4,
+        number: "12841",
+        name: "Coromandel Link",
+        source: "Visakhapatnam",
+        destination: "Chennai",
+        departure: "16:20",
+        arrival: "05:55",
+        fare: 780,
+        seats: 51
+    }
+];
+
+let bookings = [];
+let selectedTrain = null;
+let nextPNR = 810001;
+
+function showSection(id) {
+    document.querySelectorAll("main > section").forEach(section => {
+        section.classList.add("hidden");
+    });
+
+    document.getElementById(id).classList.remove("hidden");
+
+    if (id === "trains") searchTrains();
+    if (id === "bookings") renderBookings();
+    if (id === "admin") renderAdmin();
+    updateDashboard();
+}
+
+function notify(message) {
+    const box = document.getElementById("message");
+    box.innerHTML = `<div class="message">${message}</div>`;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function searchTrains() {
+    const source = document.getElementById("source").value;
+    const destination = document.getElementById("destination").value;
+
+    if (source === destination) {
+        document.getElementById("trainResults").innerHTML =
+            "<p>Please select different source and destination stations.</p>";
+        return;
+    }
+
+    const results = trains.filter(train =>
+        train.source.toLowerCase() === source.toLowerCase() &&
+        train.destination.toLowerCase() === destination.toLowerCase()
+    );
+
+    const output = document.getElementById("trainResults");
+
+    if (results.length === 0) {
+        output.innerHTML = "<p>No trains found for this route. Try another route.</p>";
+        return;
+    }
+
+    output.innerHTML = results.map(train => `
+        <div class="train">
+            <div>
+                <h3>${train.name}</h3>
+                <p class="muted">Train No: ${train.number}</p>
+                <p><b>${train.source}</b> (${train.departure})
+                   → <b>${train.destination}</b> (${train.arrival})</p>
+                <p class="muted">Available seats: ${train.seats}</p>
+            </div>
+            <div>
+                <p class="price">₹${train.fare}</p>
+                <button class="primary" onclick="openBooking(${train.id})"
+                    ${train.seats < 1 ? "disabled" : ""}>Book Ticket</button>
+            </div>
+        </div>
+    `).join("");
+}
+
+function openBooking(trainId) {
+    selectedTrain = trains.find(train => train.id === trainId);
+
+    if (!selectedTrain || selectedTrain.seats < 1) {
+        notify("No seats available on this train.");
+        return;
+    }
+
+    document.getElementById("selectedTrain").innerHTML =
+        `<b>${selectedTrain.name}</b> — ${selectedTrain.source} to ${selectedTrain.destination}<br>
+         Fare per seat: ₹${selectedTrain.fare}`;
+
+    document.getElementById("seatCount").value = "1";
+    document.getElementById("passengerForm").reset();
+    document.getElementById("bookingFormSection").classList.remove("hidden");
+
+    document.querySelectorAll("main > section").forEach(section => {
+        if (section.id !== "bookingFormSection") section.classList.add("hidden");
+    });
+
+    updateFarePreview();
+}
+
+function updateFarePreview() {
+    if (!selectedTrain) return;
+
+    const seats = Number(document.getElementById("seatCount").value);
+    document.getElementById("farePreview").textContent =
+        "Total Fare: ₹" + (selectedTrain.fare * seats);
+}
+
+document.getElementById("seatCount").addEventListener("change", updateFarePreview);
+
+document.getElementById("passengerForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    if (!selectedTrain) return;
+
+    const name = document.getElementById("passengerName").value.trim();
+    const age = Number(document.getElementById("passengerAge").value);
+    const gender = document.getElementById("gender").value;
+    const seats = Number(document.getElementById("seatCount").value);
+
+    if (!name || age < 1 || age > 120 || !gender) {
+        notify("Please enter valid passenger details.");
+        return;
+    }
+
+    if (seats > selectedTrain.seats) {
+        notify("Not enough seats are available.");
+        return;
+    }
+
+    const booking = {
+        pnr: nextPNR++,
+        passenger: name,
+        age: age,
+        gender: gender,
+        trainId: selectedTrain.id,
+        trainName: selectedTrain.name,
+        trainNumber: selectedTrain.number,
+        source: selectedTrain.source,
+        destination: selectedTrain.destination,
+        departure: selectedTrain.departure,
+        arrival: selectedTrain.arrival,
+        date: document.getElementById("journeyDate").value || "Not selected",
+        seats: seats,
+        fare: selectedTrain.fare * seats,
+        status: "Confirmed"
+    };
+
+    selectedTrain.seats -= seats;
+    bookings.push(booking);
+
+    notify("Ticket booked successfully! Your PNR is " + booking.pnr);
+    showSection("bookings");
+});
+
+function renderBookings() {
+    const output = document.getElementById("bookingResults");
+
+    if (bookings.length === 0) {
+        output.innerHTML = "<p>No bookings yet. Search trains to book a ticket.</p>";
+        return;
+    }
+
+    output.innerHTML = `
+        <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>PNR</th><th>Passenger</th><th>Train</th>
+                    <th>Route</th><th>Seats</th><th>Fare</th>
+                    <th>Status</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            ${bookings.map(booking => `
+                <tr>
+                    <td>${booking.pnr}</td>
+                    <td>${booking.passenger}</td>
+                    <td>${booking.trainName}</td>
+                    <td>${booking.source} → ${booking.destination}</td>
+                    <td>${booking.seats}</td>
+                    <td>₹${booking.fare}</td>
+                    <td>${booking.status}</td>
+                    <td>
+                    ${booking.status === "Confirmed" ?
+                        `<button class="danger" onclick="cancelBooking(${booking.pnr})">Cancel</button>` :
+                        "—"}
+                    </td>
+                </tr>
+            `).join("")}
+            </tbody>
+        </table>
+        </div>
+    `;
+}
+
+function cancelBooking(pnr) {
+    const booking = bookings.find(item => item.pnr === pnr);
+
+    if (!booking || booking.status === "Cancelled") return;
+
+    if (!confirm("Are you sure you want to cancel this ticket?")) return;
+
+    const train = trains.find(item => item.id === booking.trainId);
+
+    if (train) train.seats += booking.seats;
+
+    booking.status = "Cancelled";
+
+    notify("Ticket " + pnr + " cancelled. Seats have been restored.");
+    renderBookings();
+    updateDashboard();
+}
+
+document.getElementById("trainForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const number = document.getElementById("trainNumber").value.trim();
+
+    if (trains.some(train => train.number.toLowerCase() === number.toLowerCase())) {
+        notify("That train number already exists.");
+        return;
+    }
+
+    const fare = Number(document.getElementById("trainFare").value);
+    const seats = Number(document.getElementById("trainSeats").value);
+
+    if (fare <= 0 || seats < 1) {
+        notify("Enter a positive fare and at least one seat.");
+        return;
+    }
+
+    trains.push({
+        id: Math.max(0, ...trains.map(train => train.id)) + 1,
+        number: number,
+        name: document.getElementById("trainName").value.trim(),
+        source: document.getElementById("trainSource").value.trim(),
+        destination: document.getElementById("trainDestination").value.trim(),
+        departure: document.getElementById("departure").value,
+        arrival: document.getElementById("arrival").value,
+        fare: fare,
+        seats: seats
+    });
+
+    this.reset();
+    notify("Train added successfully.");
+    renderAdmin();
+    updateDashboard();
+});
+
+function renderAdmin() {
+    const output = document.getElementById("adminBookings");
+
+    if (bookings.length === 0) {
+        output.innerHTML = "<p>No passenger bookings yet.</p>";
+        return;
+    }
+
+    output.innerHTML = `
+        <div class="table-wrap">
+        <table>
+            <thead><tr>
+                <th>PNR</th><th>Passenger</th><th>Age</th>
+                <th>Train</th><th>Journey</th><th>Seats</th>
+                <th>Fare</th><th>Status</th>
+            </tr></thead>
+            <tbody>
+            ${bookings.map(b => `
+                <tr>
+                    <td>${b.pnr}</td><td>${b.passenger}</td><td>${b.age}</td>
+                    <td>${b.trainName} (${b.trainNumber})</td>
+                    <td>${b.source} → ${b.destination}</td>
+                    <td>${b.seats}</td><td>₹${b.fare}</td><td>${b.status}</td>
+                </tr>
+            `).join("")}
+            </tbody>
+        </table>
+        </div>
+    `;
+}
+
+function updateDashboard() {
+    document.getElementById("trainCount").textContent = trains.length;
+
+    const active = bookings.filter(b => b.status === "Confirmed");
+
+    document.getElementById("bookingCount").textContent = active.length;
+    document.getElementById("passengerCount").textContent =
+        active.reduce((sum, b) => sum + b.seats, 0);
+    document.getElementById("revenue").textContent =
+        "₹" + active.reduce((sum, b) => sum + b.fare, 0);
+}
+
+document.getElementById("journeyDate").min = new Date().toISOString().split("T")[0];
+updateDashboard();
+searchTrains();
+</script>
+
+</body>
+</html>
